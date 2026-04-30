@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>coder._tj</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0b0e14;--card:#1a1f2e;--card2:#222831;
+  --pr:#6c5ce7;--pr2:#a29bfe;--gr:#00b894;--gr2:#55efc4;
+  --re:#e17055;--ye:#fdcb6e;--bl:#0984e3;
+  --tx:#e8eaf0;--mu:#636e72;--m2:#b2bec3;
+  --bo:rgba(255,255,255,0.07);--bo2:rgba(255,255,255,0.13);
+}
+body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--tx);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 10% 5%,rgba(108,92,231,0.13),transparent 60%),
+             radial-gradient(ellipse 60% 40% at 90% 95%,rgba(9,132,227,0.09),transparent 60%);}
+
+/* ── SCREENS ── */
+.scr{display:none;min-height:100vh;flex-direction:column;position:relative;z-index:1;}
+.scr.on{display:flex;}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+.spin{width:42px;height:42px;border:3px solid rgba(108,92,231,0.2);
+  border-top-color:var(--pr);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  border-bottom:1px solid var(--bo);background:rgba(11,14,20,0.92);
+  backdrop-filter:blur(14px);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:1px;}
+.logo b{color:var(--pr2);}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.xpb{background:rgba(108,92,231,0.14);border:1px solid rgba(108,92,231,0.3);
+  color:var(--pr2);font-size:11px;padding:5px 12px;border-radius:50px;
+  font-family:'Syne',sans-serif;font-weight:700;}
+.ava{width:33px;height:33px;border-radius:10px;
+  background:linear-gradient(135deg,var(--pr),var(--bl));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;cursor:pointer;border:none;color:#fff;
+  font-family:'Syne',sans-serif;}
+
+/* ── PAGE ── */
+.pg{flex:1;padding:16px 14px 90px;max-width:660px;margin:0 auto;width:100%;}
+
+/* ── CARDS ── */
+.card{background:rgba(26,31,46,0.85);border:1px solid var(--bo);
+  border-radius:18px;padding:18px 16px;margin-bottom:12px;backdrop-filter:blur(8px);}
+.card-g{background:linear-gradient(135deg,rgba(108,92,231,0.14),rgba(9,132,227,0.08));
+  border:1px solid rgba(108,92,231,0.22);}
+
+/* ── CLOCK ── */
+.clock{background:linear-gradient(135deg,rgba(108,92,231,0.18),rgba(9,132,227,0.1));
+  border:1px solid rgba(108,92,231,0.25);border-radius:18px;
+  padding:18px 16px;margin-bottom:14px;backdrop-filter:blur(8px);}
+.clock-t{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;
+  background:linear-gradient(135deg,#fff,var(--pr2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+.clock-d{font-size:11px;color:var(--m2);margin:4px 0 10px;}
+.clock-l{background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.25);
+  border-radius:9px;padding:7px 12px;font-size:11px;color:var(--pr2);}
+
+/* ── INPUTS ── */
+.inp{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bo2);
+  border-radius:11px;padding:12px 14px;font-family:'Space Mono',monospace;
+  font-size:13px;color:var(--tx);outline:none;transition:border .2s;margin-bottom:9px;}
+.inp:focus{border-color:var(--pr);}
+textarea.inp{resize:vertical;min-height:70px;line-height:1.6;}
+select.inp{cursor:pointer;}
+.lbl{font-size:10px;color:var(--mu);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:6px;display:block;}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:13px;border-radius:12px;border:none;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-p{background:linear-gradient(135deg,var(--pr),#4834d4);color:#fff;
+  box-shadow:0 4px 18px rgba(108,92,231,0.28);}
+.btn-p:active{transform:scale(.98);}
+.btn-g{background:linear-gradient(135deg,var(--gr),var(--gr2));color:#0b0e14;}
+.btn-g:active{transform:scale(.98);}
+.btn-o{background:transparent;border:1px solid var(--bo2);color:var(--m2);
+  font-family:'Space Mono',monospace;font-size:12px;padding:11px;
+  border-radius:11px;width:100%;cursor:pointer;margin-top:7px;}
+.btn-y{background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.28);
+  color:var(--ye);font-family:'Space Mono',monospace;font-size:12px;
+  padding:11px;border-radius:11px;width:100%;cursor:pointer;margin-top:7px;}
+.btn-r2{background:rgba(225,112,85,0.1);border:1px solid rgba(225,112,85,0.25);
+  color:var(--re);font-family:'Space Mono',monospace;font-size:11px;
+  padding:8px;border-radius:9px;width:100%;cursor:pointer;margin-top:6px;}
+.ic-btn{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.ic-r{background:rgba(225,112,85,0.1);color:var(--re);}
+.bk{display:flex;align-items:center;gap:7px;color:var(--m2);font-size:12px;
+  cursor:pointer;margin-bottom:16px;border:none;background:none;padding:0;
+  font-family:'Space Mono',monospace;}
+
+/* ── GOOGLE BTN ── */
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);
+  color:var(--tx);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:7px;}
+.btn-google:active{transform:scale(.98);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:3px;background:rgba(255,255,255,0.03);
+  border-radius:11px;padding:3px;margin-bottom:16px;}
+.tab{flex:1;padding:8px;text-align:center;border-radius:8px;font-size:11px;
+  cursor:pointer;color:var(--mu);font-family:'Syne',sans-serif;
+  font-weight:700;border:none;background:none;transition:all .2s;}
+.tab.on{background:var(--card2);color:var(--tx);}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.sbox{background:rgba(255,255,255,0.03);border:1px solid var(--bo);
+  border-radius:12px;padding:12px;text-align:center;}
+.sn{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;
+  background:linear-gradient(135deg,var(--pr2),var(--bl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;}
+.sl{font-size:9px;color:var(--mu);margin-top:2px;}
+
+/* ── XP BAR ── */
+.xbar{background:rgba(255,255,255,0.05);border-radius:50px;height:4px;overflow:hidden;margin:6px 0 3px;}
+.xfill{height:100%;background:linear-gradient(90deg,var(--pr),var(--pr2));border-radius:50px;transition:width .5s;}
+
+/* ── COURSES ── */
+.ccard{background:rgba(26,31,46,0.85);border:1px solid var(--bo);border-radius:15px;
+  padding:15px;margin-bottom:9px;cursor:pointer;transition:all .2s;
+  position:relative;overflow:hidden;backdrop-filter:blur(6px);}
+.ccard:active{transform:scale(.98);}
+.ccard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:15px 0 0 15px;}
+.ch::before{background:linear-gradient(180deg,#fd79a8,#e84393);}
+.cc::before{background:linear-gradient(180deg,#74b9ff,#0984e3);}
+.cj::before{background:linear-gradient(180deg,#ffeaa7,#fdcb6e);}
+.cp::before{background:linear-gradient(180deg,#55efc4,#00b894);}
+.cn::before{background:linear-gradient(180deg,#a29bfe,#6c5ce7);}
+.pw{background:rgba(255,255,255,0.06);border-radius:50px;height:3px;overflow:hidden;margin-top:9px;}
+.pf{height:100%;border-radius:50px;transition:width .5s;}
+
+/* ── LESSONS ── */
+.li{display:flex;align-items:center;gap:11px;padding:12px 13px;
+  background:rgba(255,255,255,0.025);border:1px solid var(--bo);
+  border-radius:11px;margin-bottom:7px;cursor:pointer;transition:all .2s;}
+.li:active{transform:scale(.98);}
+.li.locked{cursor:not-allowed;opacity:.6;}
+.lnum{width:29px;height:29px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.l-done{background:rgba(0,184,148,0.15);color:var(--gr);}
+.l-open{background:rgba(108,92,231,0.2);color:var(--pr2);}
+.l-lock{background:rgba(255,255,255,0.05);color:var(--mu);}
+
+/* ── CODE ── */
+.codeblock{background:#0d1117;border:1px solid rgba(255,255,255,0.07);
+  border-radius:11px;overflow:hidden;margin:12px 0;}
+.codehdr{background:rgba(255,255,255,0.03);padding:8px 13px;display:flex;
+  align-items:center;gap:5px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#ffbd2e;}.dg{background:#28c840;}
+.codebody{padding:14px;font-size:12px;line-height:1.9;white-space:pre-wrap;color:var(--m2);}
+.tipbox{background:rgba(108,92,231,0.07);border:1px solid rgba(108,92,231,0.18);
+  border-radius:9px;padding:10px 13px;font-size:11px;color:var(--pr2);margin-top:12px;}
+
+/* ── QUIZ ── */
+.qprog{width:100%;height:3px;background:var(--bo);border-radius:50px;margin-bottom:14px;overflow:hidden;}
+.qpfill{height:100%;background:linear-gradient(90deg,var(--pr),var(--pr2));border-radius:50px;transition:width .4s;}
+.opt{padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--bo);
+  border-radius:11px;cursor:pointer;font-size:12px;display:flex;align-items:center;
+  gap:11px;margin-bottom:8px;transition:all .3s;}
+.opt.correct{border-color:var(--gr)!important;background:rgba(0,184,148,0.13)!important;
+  color:var(--gr)!important;animation:pulse .4s ease;}
+.opt.wrong{border-color:var(--re)!important;background:rgba(225,112,85,0.13)!important;
+  color:var(--re)!important;animation:shake .4s ease;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.opt.off{pointer-events:none;}
+.ol{width:25px;height:25px;border-radius:7px;background:rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.qnxt{margin-top:11px;width:100%;padding:12px;border-radius:11px;border:none;
+  background:linear-gradient(135deg,var(--pr),#4834d4);color:#fff;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:none;}
+.qnxt.on{display:block;}
+
+/* ── XP POPUP ── */
+.xpop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  background:linear-gradient(135deg,var(--pr),var(--gr));color:#fff;
+  font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
+  padding:12px 28px;border-radius:50px;z-index:500;pointer-events:none;transition:all .3s;}
+.xpop.show{transform:translate(-50%,-150px) scale(1);}
+.xpop.hide{transform:translate(-50%,-200px) scale(.8);opacity:0;}
+
+/* ── RATING ── */
+.ri{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:rgba(255,255,255,0.02);border:1px solid var(--bo);border-radius:11px;margin-bottom:7px;}
+.ri.me{border-color:var(--pr);background:rgba(108,92,231,0.09);}
+
+/* ── CERT ── */
+.certbox{background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(9,132,227,0.06));
+  border:1px solid rgba(108,92,231,0.25);border-radius:18px;
+  padding:26px 18px;text-align:center;margin-bottom:12px;}
+
+/* ── TEAM GAME ── */
+.timer-c{width:110px;height:110px;border-radius:50%;margin:0 auto 14px;
+  border:4px solid var(--pr);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:rgba(108,92,231,0.08);}
+.timer-n{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--pr2);}
+.timer-c.danger{border-color:var(--re);animation:danger .5s ease infinite alternate;}
+@keyframes danger{from{box-shadow:0 0 0 0 rgba(225,112,85,0);}to{box-shadow:0 0 0 8px rgba(225,112,85,0.15);}}
+.chatbox{height:220px;overflow-y:auto;background:rgba(0,0,0,0.2);
+  border:1px solid var(--bo);border-radius:11px;padding:11px;margin-bottom:9px;}
+.cmsg{font-size:12px;margin-bottom:7px;line-height:1.5;}
+.cmsg .cw{font-weight:700;margin-right:5px;}
+.cmsg.me .cw{color:var(--gr);}
+.cmsg.sys .cw{color:var(--ye);}
+.cinp{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--bo);
+  border-radius:10px;padding:10px 12px;font-family:'Space Mono',monospace;
+  font-size:12px;color:var(--tx);outline:none;}
+.cinp:focus{border-color:var(--pr);}
+.csend{width:40px;height:40px;border-radius:10px;border:none;
+  background:var(--pr);color:#fff;font-size:15px;cursor:pointer;flex-shrink:0;}
+
+/* ── ADMIN ── */
+.atabs{display:flex;gap:3px;background:rgba(255,255,255,0.03);
+  border-radius:11px;padding:3px;margin-bottom:14px;overflow-x:auto;}
+.atab{flex-shrink:0;padding:7px 11px;border-radius:8px;font-size:10px;
+  cursor:pointer;color:var(--mu);font-family:'Syne',sans-serif;
+  font-weight:700;border:none;background:none;white-space:nowrap;}
+.atab.on{background:var(--card2);color:var(--tx);}
+.asec{display:none;}.asec.on{display:block;}
+.arow{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 13px;background:rgba(255,255,255,0.02);border:1px solid var(--bo);
+  border-radius:11px;margin-bottom:7px;}
+.qrow{padding:10px 13px;background:rgba(255,255,255,0.02);border:1px solid var(--bo);
+  border-radius:11px;margin-bottom:7px;}
+.fbox{background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.15);
+  border-radius:13px;padding:14px;margin-bottom:12px;}
+.ftitle{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  margin-bottom:11px;color:var(--pr2);}
+
+/* ── CHIPS ── */
+.chip{display:inline-flex;padding:3px 9px;border-radius:50px;font-size:10px;
+  font-family:'Syne',sans-serif;font-weight:700;}
+.cg{background:rgba(0,184,148,0.1);color:var(--gr);border:1px solid rgba(0,184,148,0.2);}
+.cp2{background:rgba(108,92,231,0.1);color:var(--pr2);border:1px solid rgba(108,92,231,0.2);}
+.cy{background:rgba(253,203,110,0.1);color:var(--ye);border:1px solid rgba(253,203,110,0.2);}
+
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:16px;}
+.modal.on{display:flex;}
+.mbox{background:var(--card);border:1px solid rgba(108,92,231,0.3);
+  border-radius:20px;padding:22px 18px;width:100%;max-width:320px;}
+
+/* ── MISC ── */
+.dvd{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--mu);font-size:10px;}
+.dvd::before,.dvd::after{content:'';flex:1;height:1px;background:var(--bo);}
+.err{background:rgba(225,112,85,0.1);border:1px solid rgba(225,112,85,0.25);
+  border-radius:10px;padding:9px 13px;font-size:11px;color:var(--re);
+  margin-bottom:9px;display:none;}
+.empty{text-align:center;padding:28px;color:var(--mu);font-size:12px;}
+.sbadge{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;}
+.s100{background:rgba(0,184,148,0.1);color:var(--gr);}
+.s80{background:rgba(9,132,227,0.1);color:#74b9ff;}
+.s60{background:rgba(253,203,110,0.1);color:var(--ye);}
+.slow{background:rgba(225,112,85,0.1);color:var(--re);}
+
+/* ── VIDEO ── */
+.vcard{background:rgba(0,0,0,0.3);border:1px solid var(--bo);
+  border-radius:13px;overflow:hidden;margin-bottom:10px;}
+.vcard iframe{width:100%;height:195px;border:none;display:block;}
+.vinfo{padding:12px 14px;}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(11,14,20,0.97);backdrop-filter:blur(18px);
+  border-top:1px solid var(--bo);display:flex;padding:8px 0 16px;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:3px 2px;border:none;background:none;}
+.ni .ic{font-size:16px;transition:transform .2s;}
+.ni .tx{font-size:8px;color:var(--mu);transition:color .2s;}
+.ni.on .tx{color:var(--pr2);}
+.ni.on .ic{transform:scale(1.1);}
+
+/* ── CHAT PAGE ── */
+.chat-page{height:calc(100vh - 120px);display:flex;flex-direction:column;}
+.chat-msgs{flex:1;overflow-y:auto;background:rgba(0,0,0,0.2);
+  border:1px solid var(--bo);border-radius:13px;padding:12px;margin-bottom:9px;}
+.chat-footer{display:flex;gap:8px;padding-bottom:2px;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(108,92,231,0.3);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="spin"></div>
+  <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">coder<b style="color:var(--pr2)">._tj</b></div>
+  <div style="font-size:11px;color:var(--mu)">Пайваст мешавад...</div>
+</div>
+
+<!-- XP POPUP -->
+<div class="xpop" id="xpop">+10 XP ⚡</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal" id="adminModal">
+  <div class="mbox">
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px;text-align:center">🔐 Admin Panel</div>
+    <div class="err" id="aerr">❌ Пароль нодуруст!</div>
+    <span class="lbl">Паролро нависед</span>
+    <input class="inp" id="api" type="password" placeholder="••••••••">
+    <button class="btn btn-p" onclick="checkAdmin()">🔓 Кушодан</button>
+    <button class="btn-o" onclick="closeModal()">Бекор</button>
+  </div>
+</div>
+
+<div id="app" style="position:relative;z-index:1;">
+
+<!-- ══ AUTH ══ -->
+<div class="scr" id="sAuth" style="justify-content:center;align-items:center;padding:20px;min-height:100vh;">
+  <div style="width:100%;max-width:340px;">
+    <div style="text-align:center;margin-bottom:22px;">
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;">
+        coder<b style="color:var(--pr2)">._tj</b>
+      </div>
+      <div style="font-size:11px;color:var(--m2);">Платформаи омӯзишӣ • Ройгон</div>
+    </div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab on" onclick="authTab('login',this)">Дароман</button>
+        <button class="tab" onclick="authTab('reg',this)">Сабтном</button>
+      </div>
+      <!-- LOGIN -->
+      <div id="fL">
+        <div class="err" id="lerr"></div>
+        <span class="lbl">Ном / Имя</span>
+        <input class="inp" id="lN" placeholder="Номи худро нависед">
+        <span class="lbl">Парол / Пароль</span>
+        <input class="inp" id="lP" type="password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="btn btn-p" id="lBtn" onclick="doLogin()">→ Дароман / Войти</button>
+        <div class="dvd">ё / или</div>
+        <button class="btn-google" onclick="loginGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+          Google бо дароман / Войти через Google
+        </button>
+        <button class="btn-o" onclick="demoIn()">👀 Демо / Гость</button>
+      </div>
+      <!-- REGISTER -->
+      <div id="fR" style="display:none">
+        <div class="err" id="rerr"></div>
+        <span class="lbl">Ному насаб / ФИО</span>
+        <input class="inp" id="rN" placeholder="Масалан: Алишер Раҳимов">
+        <span class="lbl">Парол (камаш 6 аломат)</span>
+        <input class="inp" id="rP" type="password" placeholder="••••••••">
+        <span class="lbl">Такрори парол</span>
+        <input class="inp" id="rP2" type="password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doReg()">
+        <button class="btn btn-g" id="rBtn" onclick="doReg()">✓ Сабтном / Регистрация</button>
+        <div class="dvd">ё / или</div>
+        <button class="btn-google" onclick="loginGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+          Google бо сабтном
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div class="scr" id="sHome">
+  <nav>
+    <div class="logo">coder<b>._tj</b></div>
+    <div class="nav-r">
+      <div class="xpb" id="navXP">0 XP</div>
+      <button class="ava" id="navAv" onclick="go('sProfile')">У</button>
+    </div>
+  </nav>
+  <div class="pg">
+    <!-- CLOCK -->
+    <div class="clock">
+      <div class="clock-t" id="clockT">00:00:00</div>
+      <div class="clock-d" id="clockD">Душанбе, 1 январ</div>
+      <div class="clock-l" id="clockL">📚 Имрӯз: HTML</div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
+        background:linear-gradient(135deg,#fff,var(--pr2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"
+        id="greet">Хуш омадед!</div>
+      <div style="font-size:11px;color:var(--m2);margin-top:3px">Курс интихоб кунед</div>
+    </div>
+    <div class="stats">
+      <div class="sbox"><span class="sn" id="hD">0</span><div class="sl">Дарс</div></div>
+      <div class="sbox"><span class="sn" id="hXP">0</span><div class="sl">XP</div></div>
+      <div class="sbox"><span class="sn" id="hC">0</span><div class="sl">Сертификат</div></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-bottom:4px;">
+        <span>Сатҳ <span id="hLv" style="color:var(--pr2);font-weight:700">1</span></span>
+        <span id="hXPN">0/100 XP</span>
+      </div>
+      <div class="xbar"><div class="xfill" id="hXPB" style="width:0%"></div></div>
+    </div>
+    <span class="lbl">📚 Курсҳо</span>
+    <div id="cList"></div>
+  </div>
+  <div class="bnav">
+    <button class="ni on" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ COURSE ══ -->
+<div class="scr" id="sCourse">
+  <nav><div class="logo">coder<b>._tj</b></div><button class="ava" onclick="go('sHome')">←</button></nav>
+  <div class="pg">
+    <button class="bk" onclick="go('sHome')">← Курсҳо</button>
+    <div id="cHead"></div>
+    <span class="lbl" style="margin-top:12px">📖 Дарсҳо</span>
+    <div id="lList"></div>
+  </div>
+</div>
+
+<!-- ══ LESSON ══ -->
+<div class="scr" id="sLesson">
+  <nav><div class="logo">coder<b>._tj</b></div><button class="ava" onclick="go('sCourse')">←</button></nav>
+  <div class="pg">
+    <button class="bk" onclick="go('sCourse')">← Дарсҳо</button>
+    <div id="lView"></div>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div class="scr" id="sQuiz">
+  <nav><div class="logo">coder<b>._tj</b></div>
+    <div style="font-size:10px;color:var(--mu)" id="qLbl"></div></nav>
+  <div class="pg">
+    <button class="bk" onclick="go('sCourse')">← Баргашт</button>
+    <div class="card">
+      <div class="qprog"><div class="qpfill" id="qPF" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-bottom:13px">
+        <span id="qNL">1/5</span><span id="qSL" style="color:var(--pr2)">XP: 0</span>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;line-height:1.5" id="qTE"></div>
+      <div id="qOs"></div>
+      <button class="qnxt" id="qNX" onclick="qNext()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUIZ RESULT ══ -->
+<div class="scr" id="sQR">
+  <nav><div class="logo">coder<b>._tj</b></div></nav>
+  <div class="pg">
+    <div class="card" style="text-align:center">
+      <div style="width:95px;height:95px;border-radius:50%;border:4px solid var(--gr);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        margin:0 auto 13px;background:rgba(0,184,148,0.07)">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gr)" id="qRS">0</div>
+        <div style="font-size:10px;color:var(--mu)">XP</div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700" id="qRM"></div>
+      <div style="font-size:11px;color:var(--mu);margin-top:4px" id="qRSub"></div>
+    </div>
+    <span class="lbl">🏆 Рейтинг</span>
+    <div id="qRRat"></div>
+    <button class="btn btn-p" style="margin-top:12px" onclick="go('sHome')">🏠 Асос</button>
+    <button class="btn-o" onclick="retake()">🔄 Аз нав</button>
+  </div>
+</div>
+
+<!-- ══ VIDEOS ══ -->
+<div class="scr" id="sVideos">
+  <nav><div class="logo">coder<b>._tj</b></div></nav>
+  <div class="pg">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:3px;
+      background:linear-gradient(135deg,#fff,var(--pr2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      Видеодарсҳо 🎬</div>
+    <div style="font-size:11px;color:var(--m2);margin-bottom:16px">Видеоуроки</div>
+    <div id="vidList"><div class="empty">Видео нест / Видео пока нет</div></div>
+  </div>
+  <div class="bnav">
+    <button class="ni" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni on" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ CHAT ══ -->
+<div class="scr" id="sChat">
+  <nav>
+    <div class="logo">coder<b>._tj</b></div>
+    <div style="font-size:10px;color:var(--pr2)">💬 Умумӣ чат</div>
+  </nav>
+  <div class="pg" style="padding-bottom:80px;display:flex;flex-direction:column;height:calc(100vh - 57px);">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:3px;
+      background:linear-gradient(135deg,#fff,var(--pr2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      Чати Умумӣ 💬</div>
+    <div style="font-size:11px;color:var(--m2);margin-bottom:12px">Бо якдигар сӯҳбат кунед!</div>
+    <div class="chatbox" id="chatBox2" style="flex:1;height:auto;min-height:200px;margin-bottom:10px;"></div>
+    <div style="display:flex;gap:8px;">
+      <input class="cinp" id="chatInp2" placeholder="Паёмро нависед..." maxlength="300">
+      <button class="csend" onclick="sendChat2()">➤</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni on" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="scr" id="sGame">
+  <nav><div class="logo">coder<b>._tj</b></div>
+    <div style="font-size:10px;color:var(--ye)">⚔️ Бозии Гурӯҳӣ</div></nav>
+  <div class="pg">
+    <div class="card card-g" style="text-align:center;margin-bottom:12px;">
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--pr2);margin-bottom:12px;">
+        ⚔️ БОЗИИ ГУРӮҲӢ / КОМАНДНАЯ ИГРА</div>
+      <div class="timer-c" id="timerC">
+        <div class="timer-n" id="timerN">60</div>
+        <div style="font-size:9px;color:var(--mu)">сония</div>
+      </div>
+      <div style="font-size:12px;color:var(--m2);margin-bottom:10px" id="gameQ2">Савол интизор аст...</div>
+      <span class="chip cy" id="gameSt">⏸ Интизор</span>
+    </div>
+    <div class="card" style="padding:14px">
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:10px">💬 Чат</div>
+      <div class="chatbox" id="chatBox"></div>
+      <div style="display:flex;gap:8px;">
+        <input class="cinp" id="chatInp" placeholder="Ҷавобро нависед..." maxlength="200">
+        <button class="csend" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni on" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ RATING ══ -->
+<div class="scr" id="sRating">
+  <nav><div class="logo">coder<b>._tj</b></div></nav>
+  <div class="pg">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:3px;
+      background:linear-gradient(135deg,#fff,var(--pr2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      Рейтинг 🏆</div>
+    <div style="font-size:11px;color:var(--m2);margin-bottom:16px">Беҳтарин шогирдон</div>
+    <div id="ratPage"></div>
+  </div>
+  <div class="bnav">
+    <button class="ni" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni on" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ PROFILE ══ -->
+<div class="scr" id="sProfile">
+  <nav><div class="logo">coder<b>._tj</b></div></nav>
+  <div class="pg">
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:68px;height:68px;border-radius:18px;
+        background:linear-gradient(135deg,var(--pr),var(--bl));
+        display:flex;align-items:center;justify-content:center;
+        font-size:26px;font-weight:700;margin:0 auto 11px;color:#fff;
+        font-family:'Syne',sans-serif;" id="pAv">У</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700" id="pName">—</div>
+      <div style="font-size:10px;color:var(--mu);margin-top:2px" id="pJoined"></div>
+      <div style="margin-top:8px"><span class="chip cp2" id="pLvl">🏅 Сатҳи 1</span></div>
+    </div>
+    <div class="stats">
+      <div class="sbox"><span class="sn" id="pD">0</span><div class="sl">Дарс</div></div>
+      <div class="sbox"><span class="sn" id="pXP">0</span><div class="sl">XP</div></div>
+      <div class="sbox"><span class="sn" id="pC">0</span><div class="sl">Сертификат</div></div>
+    </div>
+    <span class="lbl">📈 Прогресс</span>
+    <div id="pProg"></div>
+    <span class="lbl" style="margin-top:14px">🎓 Сертификатҳо</span>
+    <div id="pCerts"></div>
+    <button class="btn-o" style="margin-top:14px" onclick="doLogout()">🚪 Баромад / Выход</button>
+    <div id="adminWrap" style="display:none">
+      <button class="btn-y" onclick="openModal()">👨‍💼 Admin Panel</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni" onclick="go('sHome')"><div class="ic">🏠</div><div class="tx">Асос</div></button>
+    <button class="ni" onclick="go('sVideos')"><div class="ic">🎬</div><div class="tx">Видео</div></button>
+    <button class="ni" onclick="go('sChat')"><div class="ic">💬</div><div class="tx">Чат</div></button>
+    <button class="ni" onclick="go('sGame')"><div class="ic">⚔️</div><div class="tx">Бозӣ</div></button>
+    <button class="ni" onclick="go('sRating')"><div class="ic">🏆</div><div class="tx">Рейтинг</div></button>
+    <button class="ni on" onclick="go('sProfile')"><div class="ic">👤</div><div class="tx">Профил</div></button>
+  </div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div class="scr" id="sAdmin">
+  <nav style="background:rgba(11,14,20,0.98)">
+    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--ye)">👨‍💼 Admin</div>
+    <button class="ava" style="background:rgba(253,203,110,0.15);color:var(--ye)" onclick="go('sProfile')">←</button>
+  </nav>
+  <div class="pg">
+    <div class="atabs">
+      <button class="atab on" onclick="aTab('aStat',0)">📊 Статистика</button>
+      <button class="atab" onclick="aTab('aUsers',1)">👥 Шогирдон</button>
+      <button class="atab" onclick="aTab('aLessons',2)">📚 Дарсҳо</button>
+      <button class="atab" onclick="aTab('aQuiz',3)">📝 Тестҳо</button>
+      <button class="atab" onclick="aTab('aVids',4)">🎬 Видео</button>
+      <button class="atab" onclick="aTab('aGame',5)">⚔️ Бозӣ</button>
+      <button class="atab" onclick="aTab('aCourse',6)">🗂 Курсҳо</button>
+    </div>
+
+    <div class="asec on" id="aStat">
+      <div class="stats">
+        <div class="sbox"><span class="sn" id="stU">0</span><div class="sl">Корбарон</div></div>
+        <div class="sbox"><span class="sn" id="stQ">0</span><div class="sl">Тест</div></div>
+        <div class="sbox"><span class="sn" id="stA">0</span><div class="sl">Миёна XP</div></div>
+      </div>
+      <span class="lbl">🏆 Рейтинг</span>
+      <div id="aRat"></div>
+      <button class="btn-r2" onclick="clearRatings()">🗑️ Рейтинг тоза кун</button>
+    </div>
+
+    <div class="asec" id="aUsers">
+      <span class="lbl">👥 Корбарон</span>
+      <div id="aUList"></div>
+    </div>
+
+    <div class="asec" id="aLessons">
+      <span class="lbl">Курс интихоб кун</span>
+      <select class="inp" id="lCS" onchange="renderAL()"></select>
+      <div class="fbox">
+        <div class="ftitle">➕ Дарси нав</div>
+        <span class="lbl">Сарлавҳа</span><input class="inp" id="nLT" placeholder="Масалан: Flexbox">
+        <span class="lbl">Тавсиф</span><input class="inp" id="nLS" placeholder="Зермавзӯъ">
+        <span class="lbl">Матн</span><textarea class="inp" id="nLC" placeholder="Мундариҷа..."></textarea>
+        <span class="lbl">Код</span><textarea class="inp" id="nLK" placeholder="Мисоли код..."></textarea>
+        <span class="lbl">Нуктаи муҳим</span><input class="inp" id="nLTip" placeholder="Tip...">
+        <button class="btn btn-g" onclick="addLesson()">➕ Илова</button>
+      </div>
+      <span class="lbl">📖 Дарсҳо</span>
+      <div id="aLL"></div>
+    </div>
+
+    <div class="asec" id="aQuiz">
+      <span class="lbl">Курс интихоб кун</span>
+      <select class="inp" id="qCS" onchange="renderAQ()"></select>
+      <div class="fbox">
+        <div class="ftitle">➕ Тести нав (4 вариант)</div>
+        <span class="lbl">Савол</span><input class="inp" id="nQQ" placeholder="Савол...">
+        <span class="lbl">Вариант А</span><input class="inp" id="nQA">
+        <span class="lbl">Вариант Б</span><input class="inp" id="nQB">
+        <span class="lbl">Вариант В</span><input class="inp" id="nQC">
+        <span class="lbl">Вариант Г</span><input class="inp" id="nQD">
+        <span class="lbl">Ҷавоби дуруст</span>
+        <select class="inp" id="nQAns">
+          <option value="0">А</option><option value="1">Б</option>
+          <option value="2">В</option><option value="3">Г</option>
+        </select>
+        <span class="lbl">Тавзеҳ</span><input class="inp" id="nQE" placeholder="Тавзеҳ...">
+        <button class="btn btn-g" onclick="addQ()">➕ Илова</button>
+      </div>
+      <span class="lbl">📝 Тестҳо</span>
+      <div id="aQL"></div>
+    </div>
+
+    <div class="asec" id="aVids">
+      <div class="fbox">
+        <div class="ftitle">➕ Видео нав</div>
+        <span class="lbl">Сарлавҳа</span><input class="inp" id="nVT" placeholder="Сарлавҳа...">
+        <span class="lbl">YouTube Video ID</span><input class="inp" id="nVID" placeholder="Масалан: dQw4w9WgXcQ">
+        <span class="lbl">Тавсиф</span><input class="inp" id="nVD" placeholder="Тавсиф...">
+        <button class="btn btn-g" onclick="addVideo()">➕ Илова</button>
+      </div>
+      <span class="lbl">🎬 Видеоҳо</span>
+      <div id="aVL"></div>
+    </div>
+
+    <div class="asec" id="aGame">
+      <div class="fbox">
+        <div class="ftitle">⚔️ Идоракунии Бозӣ</div>
+        <span class="lbl">Савол барои бозӣ</span>
+        <input class="inp" id="gameQinp" placeholder="Саволро нависед...">
+        <button class="btn btn-g" style="margin-bottom:8px" onclick="startGame()">▶️ Оғоз (60 сон.)</button>
+        <button class="btn-r2" onclick="stopGame()">⏹ Қатъ</button>
+      </div>
+      <button class="btn-r2" onclick="clearChat()">🗑️ Чат тоза кун</button>
+    </div>
+
+    <div class="asec" id="aCourse">
+      <div class="fbox">
+        <div class="ftitle">➕ Курси нав</div>
+        <span class="lbl">Ном</span><input class="inp" id="nCT" placeholder="Масалан: React">
+        <span class="lbl">Тавсиф</span><input class="inp" id="nCD" placeholder="Тавсиф...">
+        <span class="lbl">Эмодзи</span><input class="inp" id="nCI" placeholder="⚛️">
+        <button class="btn btn-g" onclick="addCourse()">➕ Курс илова кун</button>
+      </div>
+      <span class="lbl">🗂 Курсҳо</span>
+      <div id="aCL"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const SUPA_URL = 'https://ernoqkfbjqmigezdbsna.supabase.co';
+const SUPA_KEY = 'sb_publishable_1gPRFztF1TCr0XfaME_fxA_NQ7UFADp';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const ADMIN_EMAIL = 'mirzoevumar0530@gmail.com';
+const ADMIN_PASS  = 'umar2024';
+
+const DAYS    = ['Якшанбе','Душанбе','Сешанбе','Чоршанбе','Панҷшанбе','Ҷумъа','Шанбе'];
+const MONTHS  = ['январ','феврал','март','апрел','май','июн','июл','август','сентябр','октябр','ноябр','декабр'];
+const SCHED   = {0:'Савол-Ҷавоб',1:'HTML',2:'HTML',3:'CSS',4:'CSS',5:'JavaScript',6:'Python'};
+
+// ══════════════════════════════════════════
+// DEFAULT COURSES
+// ══════════════════════════════════════════
+const DEF = [
+  {id:'html',title:'HTML',icon:'📄',color:'ch',desc:'Сохтори ҳар сайт — аз сифр',
+   lessons:[
+    {id:'h1',title:'HTML чист?',sub:'Таъриф ва мисолҳо',
+     content:'<strong>HTML</strong> — HyperText Markup Language — забони сохтори ҳар сайт.<br><br>🦴 HTML = Скелет<br>🎨 CSS = Ороиш<br>⚡ JS = Ҳаракат',
+     code:'&lt;h1&gt;Салом Ҷаҳон!&lt;/h1&gt;\n&lt;p&gt;Ман HTML ёд мегирам&lt;/p&gt;\n&lt;div&gt;Ин блок аст&lt;/div&gt;',
+     tip:'HTML забони сохтор аст — НА барномасозӣ!'},
+    {id:'h2',title:'Тегҳои асосӣ',sub:'h1-h6, p, div, span',
+     content:'Тег — дастур ба браузер.<br>Ҳар тег кушода <strong>&lt;tag&gt;</strong> ва пӯшида <strong>&lt;/tag&gt;</strong> мешавад!',
+     code:'&lt;h1&gt;Сарлавҳаи калон&lt;/h1&gt;\n&lt;h2&gt;Сарлавҳаи хурд&lt;/h2&gt;\n&lt;p&gt;Параграф&lt;/p&gt;\n&lt;div&gt;Блок&lt;/div&gt;',
+     tip:'h1 калонтарин, h6 хурдтарин!'},
+    {id:'h3',title:'Расм ва пайвандҳо',sub:'img, a, href',
+     content:'<strong>&lt;img&gt;</strong> — барои расм<br><strong>&lt;a&gt;</strong> — барои пайванд',
+     code:'&lt;img src="расм.jpg" alt="Тавсиф"&gt;\n&lt;a href="https://t.me/umar_coder"&gt;Канал&lt;/a&gt;',
+     tip:'img тег пӯшидашаванда нест!'}
+   ],
+   quiz:[
+    {q:'HTML чист?',opts:['Забони барномасозӣ','Забони сохтор','База данных','Дизайн'],c:1,ex:'HTML = HyperText Markup Language!'},
+    {q:'Кадом тег параграф?',opts:['<div>','<span>','<p>','<section>'],c:2,ex:'<p> = paragraph!'},
+    {q:'Расм барои кадом тег?',opts:['<pic>','<photo>','<img>','<image>'],c:2,ex:'<img src="...">!'},
+    {q:'Сарлавҳаҳои HTML:',opts:['<title>','<h1>-<h6>','<p>','<div>'],c:1,ex:'h1 то h6!'},
+    {q:'HTML расшифровка:',opts:['HyperText Markup Language','High Tech Modern Lang','Home Tool Markup','HyperText Modern List'],c:0,ex:'HyperText Markup Language!'},
+    {q:'Пайванд барои кадом тег?',opts:['<link>','<url>','<a>','<href>'],c:2,ex:'<a href="..."> = anchor!'},
+    {q:'Рӯйхати тартибнок:',opts:['<ul>','<ol>','<li>','<list>'],c:1,ex:'<ol> = ordered list!'},
+    {q:'Рӯйхати бетартибнок:',opts:['<ol>','<ul>','<dl>','<menu>'],c:1,ex:'<ul> = unordered list!'},
+    {q:'Унсури рӯйхат:',opts:['<item>','<point>','<li>','<row>'],c:2,ex:'<li> = list item!'},
+    {q:'Ҷадвали HTML:',opts:['<table>','<grid>','<chart>','<sheet>'],c:0,ex:'<table>, <tr>, <td>!'},
+    {q:'Сатри ҷадвал:',opts:['<td>','<th>','<tr>','<row>'],c:2,ex:'<tr> = table row!'},
+    {q:'Хуҷайраи ҷадвал:',opts:['<tc>','<td>','<cell>','<col>'],c:1,ex:'<td> = table data!'},
+    {q:'Формаи HTML:',opts:['<input>','<form>','<data>','<field>'],c:1,ex:'<form action="...">!'},
+    {q:'<br> теги барои чист?',opts:['Блок нав','Сатри нав','Фосила','Хатти уфуқӣ'],c:1,ex:'<br> = line break (сатри нав)!'},
+    {q:'<hr> теги барои чист?',opts:['Сарлавҳа','Хатти уфуқӣ','Расм','Пайванд'],c:1,ex:'<hr> = horizontal rule (хатти уфуқӣ)!'}
+   ]},
+  {id:'css',title:'CSS',icon:'🎨',color:'cc',desc:'Ранг, андоза, зебоии сайт',
+   lessons:[
+    {id:'c1',title:'CSS чист?',sub:'Selector, property, value',
+     content:'<strong>CSS</strong> — Cascading Style Sheets — ороиши сайт.',
+     code:'h1 {\n  color: #6c5ce7;\n  font-size: 32px;\n  font-weight: bold;\n}',
+     tip:'selector { property: value; }'},
+    {id:'c2',title:'Flexbox',sub:'display:flex',
+     content:'Flexbox — беҳтарин усули ҷойгиркунӣ!',
+     code:'.box {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 16px;\n}',
+     tip:'display:flex — Flexbox оғоз!'}
+   ],
+   quiz:[
+    {q:'CSS барои чист?',opts:['Сохтор','Ороиш','Барномасозӣ','Маълумот'],c:1,ex:'CSS = Cascading Style Sheets!'},
+    {q:'Ранги матн:',opts:['background','font-size','color','border'],c:2,ex:'color: red;'},
+    {q:'Андозаи шрифт:',opts:['text-size','font-size','size','font'],c:1,ex:'font-size: 16px;'},
+    {q:'Flexbox оғоз:',opts:['display:block','display:flex','display:grid','display:inline'],c:1,ex:'display: flex;'},
+    {q:'Ранги замина:',opts:['color','font','background-color','border'],c:2,ex:'background-color: blue;'}
+   ]},
+  {id:'python',title:'Python',icon:'🐍',color:'cp',desc:'Барномасозии умумӣ ва бэкэнд',
+   lessons:[
+    {id:'p1',title:'Python чист?',sub:'Print, variables',
+     content:'<strong>Python</strong> — маъмултарин забони барномасозӣ! Содда ва пурқувват 💪',
+     code:"print('Салом Ҷаҳон!')\nnom = 'Умар'\nprint(f'Ман {nom}')",
+     tip:'# — тавзеҳот дар Python!'},
+    {id:'p2',title:'Шартҳо',sub:'if, elif, else',
+     content:'Шарт санҷидан — асоси ҳар барнома!',
+     code:"xol = 85\nif xol >= 90:\n    print('Аъло!')\nelif xol >= 70:\n    print('Хуб!')\nelse:\n    print('Такрор кун')",
+     tip:'Python — бозиф (indent) муҳим аст!'},
+    {id:'p3',title:'Сиклҳо',sub:'for, while, range',
+     content:'Сикл — барои такрор кардани амалиёт!',
+     code:"for i in range(5):\n    print(f'{i+1}: Салом!')",
+     tip:'range(5) — аз 0 то 4!'}
+   ],
+   quiz:[
+    {q:'Чопи матн дар Python:',opts:['console.log()','echo()','print()','printf()'],c:2,ex:"print('матн')"},
+    {q:'Тавзеҳот дар Python:',opts:['//','/* */','#','--'],c:2,ex:'# тавзеҳот!'},
+    {q:'Шарт дар Python:',opts:['if (x):','if x:','when x:','case x:'],c:1,ex:'if шарт: (бе қавс!)'},
+    {q:'range(5) медиҳад:',opts:['0-5','1-5','0-4','1-4'],c:2,ex:'0,1,2,3,4 — 5 рақам аз 0!'},
+    {q:'Python кӣ сохт?',opts:['Guido van Rossum','Bill Gates','Linus Torvalds','Dennis Ritchie'],c:0,ex:'Guido van Rossum — 1991!'}
+   ]}
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let U = null, CC = null, timerInt = null, chatCh = null, chatCh2 = null;
+let QS = {qs:[],i:0,xp:0,cid:''};
+
+// ══════════════════════════════════════════
+// SOUND (Web Audio API — no external deps)
+// ══════════════════════════════════════════
+const AC = window.AudioContext || window.webkitAudioContext;
+const ac = AC ? new AC() : null;
+
+function playTone(freq=440, dur=0.08, type='sine', vol=0.15) {
+  if (!ac) return;
+  try {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.start(); o.stop(ac.currentTime + dur);
+  } catch {}
+}
+
+function sndClick()   { playTone(600, 0.07, 'sine', 0.12); }
+function sndCorrect() { playTone(880, 0.1, 'sine', 0.15); setTimeout(()=>playTone(1100,0.1,'sine',0.12),100); }
+function sndWrong()   { playTone(200, 0.15, 'sawtooth', 0.12); }
+function sndXP()      { [600,800,1000].forEach((f,i)=>setTimeout(()=>playTone(f,0.1,'sine',0.1),i*80)); }
+function sndBell()    {
+  [880,990,1100,990,880].forEach((f,i)=>setTimeout(()=>playTone(f,0.15,'sine',0.2),i*150));
+}
+
+// Ҳамаи тугмаҳо — овоз
+document.addEventListener('click', e => {
+  if (e.target.matches('button,.tab,.ni,.ccard,.li')) { if(ac&&ac.state==='suspended') ac.resume(); sndClick(); }
+});
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function toast(msg, color='#6c5ce7') {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+    background:${color};color:#fff;padding:10px 20px;border-radius:50px;font-size:12px;
+    z-index:9998;font-family:Space Mono,monospace;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.3);`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+
+// ══════════════════════════════════════════
+// XP POPUP
+// ══════════════════════════════════════════
+function showXP(amount=10) {
+  const p = document.getElementById('xpop');
+  p.textContent = `+${amount} XP ⚡`;
+  p.className = 'xpop show';
+  sndXP();
+  setTimeout(()=>{ p.classList.add('hide'); setTimeout(()=>p.className='xpop',400); }, 1200);
+}
+
+function updateXPUI(xp) {
+  const lv = Math.floor(xp/100)+1, prog = xp%100;
+  ['navXP'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=xp+' XP'; });
+  ['hXP','pXP'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=xp; });
+  const hLv=document.getElementById('hLv'); if(hLv) hLv.textContent=lv;
+  const hXPN=document.getElementById('hXPN'); if(hXPN) hXPN.textContent=`${xp}/${lv*100} XP`;
+  const hXPB=document.getElementById('hXPB'); if(hXPB) hXPB.style.width=prog+'%';
+  const pLvl=document.getElementById('pLvl'); if(pLvl) pLvl.textContent=`🏅 Сатҳи ${lv}`;
+}
+
+// ══════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════
+function startClock() {
+  function tick() {
+    const n=new Date();
+    const h=String(n.getHours()).padStart(2,'0');
+    const m=String(n.getMinutes()).padStart(2,'0');
+    const s=String(n.getSeconds()).padStart(2,'0');
+    const ct=document.getElementById('clockT'); if(ct) ct.textContent=`${h}:${m}:${s}`;
+    const cd=document.getElementById('clockD');
+    if(cd) cd.textContent=`${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]}`;
+    const cl=document.getElementById('clockL');
+    if(cl) cl.textContent=`📚 Имрӯз: ${SCHED[n.getDay()]}`;
+  }
+  tick(); setInterval(tick,1000);
+}
+
+// ══════════════════════════════════════════
+// LOADER & MODAL
+// ══════════════════════════════════════════
+function showLoader(v) { document.getElementById('loader').style.display=v?'flex':'none'; }
+function openModal()   { document.getElementById('adminModal').classList.add('on'); document.getElementById('api').value=''; document.getElementById('aerr').style.display='none'; setTimeout(()=>document.getElementById('api').focus(),100); }
+function closeModal()  { document.getElementById('adminModal').classList.remove('on'); }
+document.getElementById('api').addEventListener('keydown',e=>{ if(e.key==='Enter') checkAdmin(); });
+
+function checkAdmin() {
+  if (document.getElementById('api').value === ADMIN_PASS) {
+    closeModal(); go('sAdmin'); aTab('aStat',0);
+  } else {
+    document.getElementById('aerr').style.display='block';
+    document.getElementById('api').value='';
+    document.getElementById('api').focus();
+    sndWrong();
+  }
+}
+
+function showAdminBtn(isAdmin) {
+  const w = document.getElementById('adminWrap');
+  if (w) w.style.display = isAdmin ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function authTab(m, el) {
+  document.getElementById('fL').style.display = m==='login'?'block':'none';
+  document.getElementById('fR').style.display = m==='reg'?'block':'none';
+  document.querySelectorAll('#sAuth .tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function showErr(id,msg) { const e=document.getElementById(id); e.style.display='block'; e.textContent=msg; }
+function hideErr(id) { document.getElementById(id).style.display='none'; }
+
+// Корбарро DB-да нигоҳ медорем / сохтан
+async function ensureUser(supaUser, name) {
+  const { data } = await supa.from('users').select('*').eq('id', supaUser.id).single();
+  if (data) return data;
+  const ud = {
+    id: supaUser.id,
+    name: name || supaUser.user_metadata?.full_name || supaUser.email?.split('@')[0] || 'Корбар',
+    email: supaUser.email || '',
+    joined: new Date().toLocaleDateString('ru'),
+    xp: 0
+  };
+  await supa.from('users').upsert(ud);
+  return ud;
+}
+
+async function doLogin() {
+  const n=document.getElementById('lN').value.trim();
+  const p=document.getElementById('lP').value;
+  hideErr('lerr');
+  if(!n||!p){showErr('lerr','Ном ва паролро нависед!');return;}
+  const btn=document.getElementById('lBtn');
+  btn.disabled=true; btn.textContent='⏳...';
+  try {
+    const email=n.toLowerCase().replace(/\s+/g,'_')+'@codertj.app';
+    const {data,error}=await supa.auth.signInWithPassword({email,password:p});
+    if(error) throw error;
+    U = await ensureUser(data.user, n);
+    await enterApp(data.user.email);
+  } catch(e) {
+    showErr('lerr','❌ Ном ё парол нодуруст!');
+    sndWrong();
+  }
+  btn.disabled=false; btn.textContent='→ Дароман / Войти';
+}
+
+async function doReg() {
+  const n=document.getElementById('rN').value.trim();
+  const p=document.getElementById('rP').value;
+  const p2=document.getElementById('rP2').value;
+  hideErr('rerr');
+  if(!n||!p){showErr('rerr','Ҳамаро пур кунед!');return;}
+  if(p.length<6){showErr('rerr','Парол камаш 6 аломат!');return;}
+  if(p!==p2){showErr('rerr','Паролҳо якхел нестанд!');return;}
+  const btn=document.getElementById('rBtn');
+  btn.disabled=true; btn.textContent='⏳...';
+  try {
+    const email=n.toLowerCase().replace(/\s+/g,'_')+'@codertj.app';
+    const {data,error}=await supa.auth.signUp({email,password:p,options:{emailRedirectTo:window.location.href}});
+    if(error) throw error;
+    // Агар тасдиқ лозим набошад
+    if(data.user) {
+      U = await ensureUser(data.user, n);
+      await enterApp(data.user.email);
+    } else {
+      // Тасдиқи email лозим аст
+      toast('📧 Email-ро тасдиқ кунед ва баргардед!','#0984e3');
+    }
+  } catch(e) {
+    if(e.message?.includes('already')) showErr('rerr','❌ Ин ном банд аст! Дароман кунед.');
+    else showErr('rerr','❌ Хато: '+(e.message||''));
+    sndWrong();
+  }
+  btn.disabled=false; btn.textContent='✓ Сабтном';
+}
+
+async function loginGoogle() {
+  try {
+    if(ac && ac.state==='suspended') { try { await ac.resume(); } catch {} }
+    const {error}=await supa.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.href.split('?')[0].split('#')[0]}
+    });
+    if(error) throw error;
+  } catch(e) {
+    toast('❌ Google хато: '+(e.message||'Дубора кӯшиш кун'), '#e17055');
+    sndWrong();
+  }
+}
+
+async function demoIn() {
+  U={id:'demo',name:'Меҳмон',email:'',xp:0};
+  await enterApp('');
+}
+
+async function doLogout() {
+  try { await supa.auth.signOut(); } catch {}
+  if(chatCh) { try{chatCh.unsubscribe();}catch{} }
+  if(chatCh2) { try{chatCh2.unsubscribe();}catch{} }
+  if(timerInt) clearInterval(timerInt);
+  U=null; go('sAuth');
+}
+
+async function enterApp(email='') {
+  showLoader(true);
+  const xp = U.xp||0;
+  updateXPUI(xp);
+  await renderHome();
+  setupChat();
+  setupChat2();
+  setupGame();
+  // Check real Supabase session email for admin
+  try {
+    const {data:{session}} = await supa.auth.getSession();
+    const realEmail = session?.user?.email || email;
+    showAdminBtn(realEmail === ADMIN_EMAIL);
+  } catch { showAdminBtn(email === ADMIN_EMAIL); }
+  showLoader(false);
+  go('sHome');
+}
+
+// ══════════════════════════════════════════
+// DB HELPERS
+// ══════════════════════════════════════════
+async function getCourses() {
+  try {
+    const {data}=await supa.from('courses_config').select('data').eq('id','main').single();
+    if(data?.data) return data.data;
+  } catch {}
+  const local=localStorage.getItem('ca_c');
+  return local ? JSON.parse(local) : JSON.parse(JSON.stringify(DEF));
+}
+
+async function saveCourses(cs) {
+  localStorage.setItem('ca_c',JSON.stringify(cs));
+  try { await supa.from('courses_config').upsert({id:'main',data:cs}); } catch {}
+}
+
+async function getProgress() {
+  if(!U||U.id==='demo') return {};
+  try {
+    const {data}=await supa.from('progress').select('data').eq('user_id',U.id).single();
+    return data?.data||{};
+  } catch { return {}; }
+}
+
+async function saveProgress(p) {
+  if(!U||U.id==='demo') return;
+  try { await supa.from('progress').upsert({user_id:U.id,data:p}); } catch {}
+}
+
+async function addXP(amount) {
+  if(!U||U.id==='demo') return;
+  try {
+    const newXP=(U.xp||0)+amount;
+    U.xp=newXP;
+    await supa.from('users').update({xp:newXP}).eq('id',U.id);
+    await supa.from('ratings').upsert({user_id:U.id,name:U.name,xp:newXP,date:new Date().toLocaleDateString('ru')});
+    updateXPUI(newXP);
+  } catch {}
+}
+
+async function getRatings() {
+  try {
+    const {data}=await supa.from('ratings').select('*').order('xp',{ascending:false}).limit(50);
+    return data||[];
+  } catch { return []; }
+}
+
+// ══════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════
+async function renderHome() {
+  if(!U) return;
+  const cs=await getCourses(), pg=await getProgress();
+  const ini=U.name.charAt(0).toUpperCase();
+  ['navAv','pAv'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ini;});
+  const pN=document.getElementById('pName'); if(pN) pN.textContent=U.name;
+  const gr=document.getElementById('greet'); if(gr) gr.textContent=`Хуш омадед, ${U.name.split(' ')[0]}! 👋`;
+  const pJ=document.getElementById('pJoined'); if(pJ&&U.joined) pJ.textContent='Қайд: '+U.joined;
+  updateXPUI(U.xp||0);
+
+  let td=0,tc=0;
+  cs.forEach(c=>{
+    const cp=pg[c.id]||{};
+    td+=c.lessons.filter(l=>cp['l_'+l.id]).length;
+    if(c.lessons.length&&c.lessons.every(l=>cp['l_'+l.id])&&cp.qd) tc++;
+  });
+  ['hD','pD'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=td;});
+  ['hC','pC'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=tc;});
+
+  // Course cards
+  const cL=document.getElementById('cList');
+  if(cL) cL.innerHTML=cs.map(c=>{
+    const cp=pg[c.id]||{};
+    const done=c.lessons.filter(l=>cp['l_'+l.id]).length;
+    const pct=c.lessons.length?Math.round(done/c.lessons.length*100):0;
+    const isDone=pct===100&&cp.qd, isAct=done>0&&!isDone;
+    const bdg=isDone?'<span class="chip cg">✅ Тамом</span>':isAct?'<span class="chip cp2">🟢 Давом</span>':'<span class="chip" style="background:rgba(255,255,255,0.05);color:var(--mu)">🔒 Оғоз</span>';
+    return `<div class="ccard ${c.color}" onclick="openCourse('${c.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:25px">${c.icon}</span>${bdg}
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px">${c.title}</div>
+      <div style="font-size:10px;color:var(--m2);margin-bottom:8px">${c.desc}</div>
+      <div class="pw"><div class="pf" style="width:${pct}%;background:${isDone?'var(--gr)':'var(--pr2)'}"></div></div>
+      <div style="font-size:9px;color:var(--mu);margin-top:4px">${done}/${c.lessons.length} дарс • ${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Profile progress
+  const pp=document.getElementById('pProg');
+  if(pp) pp.innerHTML=cs.map(c=>{
+    const cp=pg[c.id]||{}, done=c.lessons.filter(l=>cp['l_'+l.id]).length;
+    const pct=c.lessons.length?Math.round(done/c.lessons.length*100):0;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px">
+        <span>${c.icon} ${c.title}</span><span style="color:var(--mu)">${pct}%</span>
+      </div>
+      <div class="pw"><div class="pf" style="width:${pct}%;background:var(--pr2)"></div></div>
+    </div>`;
+  }).join('');
+
+  // Certs
+  const pc=document.getElementById('pCerts');
+  if(pc){
+    const earned=cs.filter(c=>{const cp=pg[c.id]||{}; return c.lessons.length&&c.lessons.every(l=>cp['l_'+l.id])&&cp.qd;});
+    pc.innerHTML=earned.length?earned.map(c=>`
+      <div class="certbox">
+        <div style="font-size:38px;margin-bottom:9px">${c.icon}</div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:4px">Сертификат</div>
+        <div style="font-size:10px;color:var(--m2);margin-bottom:8px">${c.title} — coder._tj</div>
+        <div style="font-size:15px;color:var(--pr2);font-weight:700;margin-bottom:11px">${U.name}</div>
+        <span class="chip cg">✅ Тасдиқ шудааст</span>
+      </div>`).join(''):'<div class="empty">Ҳанӯз сертификат нест<br>Курсро тамом кунед!</div>';
+  }
+}
+
+// ══════════════════════════════════════════
+// COURSE
+// ══════════════════════════════════════════
+async function openCourse(cid) {
+  showLoader(true);
+  const cs=await getCourses(); CC=cs.find(c=>c.id===cid);
+  const pg=await getProgress(); const cp=pg[cid]||{};
+  showLoader(false);
+
+  document.getElementById('cHead').innerHTML=`
+    <div class="card card-g">
+      <div style="font-size:30px;margin-bottom:7px">${CC.icon}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+        background:linear-gradient(135deg,#fff,var(--pr2));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${CC.title}</div>
+      <div style="font-size:11px;color:var(--m2);margin-bottom:11px">${CC.desc}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="chip cp2">${CC.lessons.length} дарс</span>
+        <span class="chip cg">Ройгон</span>
+        <span class="chip cy">${CC.quiz.length} тест • +${CC.quiz.length*10} XP</span>
+      </div>
+    </div>`;
+
+  // Дарсҳои қуфл — танҳо агар пешина тамом бошад
+  const lL=document.getElementById('lList');
+  const allDone=CC.lessons.length>0&&CC.lessons.every(l=>cp['l_'+l.id]);
+
+  lL.innerHTML=[
+    ...CC.lessons.map((l,i)=>{
+      const done=!!cp['l_'+l.id];
+      // Ҳамаи пешинҳо бояд тамом бошанд
+      const prevDone=i===0||CC.lessons.slice(0,i).every(prev=>cp['l_'+prev.id]);
+      const locked=!done&&!prevDone;
+      const cls=done?'l-done':!locked?'l-open':'l-lock';
+      const ic=done?'✅':!locked?'▶️':'🔒';
+      return `<div class="li${locked?' locked':''}" onclick="${locked?`toast('🔒 Аввал дарси пешинаро тамом кун!','#e17055')`:`openLesson('${cid}','${l.id}')`}">
+        <div class="lnum ${cls}">${i+1}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;margin-bottom:1px">${l.title}</div>
+          <div style="font-size:10px;color:var(--mu)">${l.sub}${done?' • ✅ +10 XP':''}</div>
+        </div>
+        <div style="font-size:13px">${ic}</div>
+      </div>`;
+    }),
+    // Тест — танҳо агар ҳамаи дарсҳо тамом
+    `<div class="li${!allDone?' locked':''}" onclick="${allDone?`startQuiz('${cid}')`:`toast('🔒 Аввал ҳамаи дарсҳоро тамом кун!','#e17055')`}"
+      style="border-color:rgba(253,203,110,${allDone?'0.3':'0.1'})">
+      <div class="lnum" style="background:rgba(253,203,110,0.12);color:${allDone?'var(--ye)':'var(--mu)'}">📝</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:${allDone?'var(--tx)':'var(--mu)'}">Тест / Тестирование</div>
+        <div style="font-size:10px;color:var(--mu)">${allDone?`${CC.quiz.length} савол • +${CC.quiz.length*10} XP`:'Аввал ҳамаи дарсҳоро тамом кун'}</div>
+      </div>
+      <div style="font-size:13px">${cp.qd?'✅':allDone?'▶️':'🔒'}</div>
+    </div>`
+  ].join('');
+
+  go('sCourse');
+}
+
+// ══════════════════════════════════════════
+// LESSON
+// ══════════════════════════════════════════
+async function openLesson(cid,lid) {
+  const cs=await getCourses(); CC=cs.find(c=>c.id===cid);
+  const l=CC.lessons.find(x=>x.id===lid);
+  document.getElementById('lView').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px">
+      <span style="font-size:23px">${CC.icon}</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">${l.title}</div>
+        <div style="font-size:10px;color:var(--mu)">${CC.title} • ${l.sub}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;line-height:1.8;color:var(--m2);margin-bottom:12px">${l.content}</div>
+      <div class="codeblock">
+        <div class="codehdr"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          <span style="font-size:10px;color:var(--mu);margin-left:8px">code</span></div>
+        <div class="codebody">${l.code}</div>
+      </div>
+      <div class="tipbox">💡 <strong>Муҳим:</strong> ${l.tip}</div>
+    </div>
+    <button class="btn btn-g" onclick="doneLesson('${cid}','${lid}')">✅ Тамом (+10 XP)</button>`;
+  go('sLesson');
+}
+
+async function doneLesson(cid,lid) {
+  showLoader(true);
+  const pg=await getProgress();
+  if(!pg[cid]) pg[cid]={};
+  if(!pg[cid]['l_'+lid]) {
+    pg[cid]['l_'+lid]=true;
+    await saveProgress(pg);
+    await addXP(10);
+    showXP(10);
+  }
+  await renderHome();
+  showLoader(false);
+  await openCourse(cid);
+}
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+async function startQuiz(cid) {
+  const cs=await getCourses(); CC=cs.find(c=>c.id===cid);
+  QS={qs:CC.quiz,i:0,xp:0,cid};
+  document.getElementById('qLbl').textContent=CC.title+' — Тест';
+  loadQ(); go('sQuiz');
+}
+
+function loadQ() {
+  const q=QS.qs[QS.i];
+  document.getElementById('qPF').style.width=(QS.i/QS.qs.length*100)+'%';
+  document.getElementById('qNL').textContent=`${QS.i+1}/${QS.qs.length}`;
+  document.getElementById('qSL').textContent=`XP: ${QS.xp}`;
+  document.getElementById('qTE').textContent=q.q;
+  const L=['А','Б','В','Г'];
+  document.getElementById('qOs').innerHTML=q.opts.map((o,i)=>
+    `<div class="opt" onclick="qPick(${i})" id="qo${i}">
+      <div class="ol">${L[i]}</div><span>${o}</span>
+    </div>`).join('');
+  const nb=document.getElementById('qNX'); nb.className='qnxt';
+  nb.textContent=QS.i===QS.qs.length-1?'🏁 Натиҷа!':`Савол ${QS.i+2} →`;
+}
+
+function qPick(i) {
+  const q=QS.qs[QS.i];
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('off'));
+  const ok=i===q.c;
+  document.getElementById('qo'+i).classList.add(ok?'correct':'wrong');
+  if(!ok) document.getElementById('qo'+q.c).classList.add('correct');
+  if(ok){ QS.xp+=10; sndCorrect(); showXP(10); }
+  else sndWrong();
+  document.getElementById('qNX').classList.add('on');
+  document.getElementById('qSL').textContent=`XP: ${QS.xp}`;
+}
+
+async function qNext() { QS.i++; QS.i>=QS.qs.length ? await finishQuiz() : loadQ(); }
+
+async function finishQuiz() {
+  showLoader(true);
+  const pg=await getProgress();
+  if(!pg[QS.cid]) pg[QS.cid]={};
+  pg[QS.cid].qd=true;
+  await saveProgress(pg);
+  if(QS.xp>0) await addXP(QS.xp);
+  await renderHome();
+  const rats=await getRatings();
+  showLoader(false);
+
+  document.getElementById('qRS').textContent=QS.xp;
+  const max=QS.qs.length*10;
+  const m=QS.xp===max?['🏆 АЪЛО!','Ҳамаро дуруст!']:
+           QS.xp>=max*.8?['🌟 Хуб!','Хеле хуб!']:
+           QS.xp>=max*.6?['👍 Миёна','Такрор кунед!']:['📚 Давом!','Дарсҳоро хонед!'];
+  document.getElementById('qRM').textContent=m[0];
+  document.getElementById('qRSub').textContent=m[1];
+
+  if(QS.xp===max) sndBell();
+
+  const md=['🥇','🥈','🥉'];
+  document.getElementById('qRRat').innerHTML=rats.slice(0,8).map((r,i)=>`
+    <div class="ri ${U&&r.name===U.name?'me':''}">
+      <div style="width:24px;text-align:center">${md[i]||(i+1)+'.'}</div>
+      <div style="flex:1;font-size:12px;font-weight:700">${r.name}${U&&r.name===U.name?' 👈':''}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--gr)">${r.xp} XP</div>
+    </div>`).join('')||'<div class="empty">Ҳанӯз касе нест!</div>';
+  go('sQR');
+}
+
+function retake() { startQuiz(QS.cid); }
+
+// ══════════════════════════════════════════
+// VIDEOS
+// ══════════════════════════════════════════
+async function renderVideos() {
+  try {
+    const {data}=await supa.from('videos').select('*').order('added',{ascending:false});
+    const vL=document.getElementById('vidList');
+    if(!data?.length){vL.innerHTML='<div class="empty">Видео нест / Видео пока нет</div>';return;}
+    vL.innerHTML=data.map(v=>`
+      <div class="vcard">
+        <iframe src="https://www.youtube.com/embed/${v.yt_id}" allowfullscreen loading="lazy"></iframe>
+        <div class="vinfo">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700">${v.title}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:3px">${v.description||''}</div>
+        </div>
+      </div>`).join('');
+  } catch { document.getElementById('vidList').innerHTML='<div class="empty">Хато / Ошибка</div>'; }
+}
+
+// ══════════════════════════════════════════
+// RATING
+// ══════════════════════════════════════════
+async function renderRating() {
+  showLoader(true);
+  const rats=await getRatings();
+  showLoader(false);
+  const md=['🥇','🥈','🥉'];
+  document.getElementById('ratPage').innerHTML=rats.length?rats.map((r,i)=>`
+    <div class="ri ${U&&r.name===U.name?'me':''}">
+      <div style="width:24px;text-align:center">${md[i]||(i+1)+'.'}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700">${r.name}${U&&r.name===U.name?' 👈':''}</div>
+        <div style="font-size:9px;color:var(--mu)">${r.date||''}</div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--gr)">${r.xp} XP</div>
+    </div>`).join(''):'<div class="empty">Ҳанӯз касе нест 🏆</div>';
+}
+
+// ══════════════════════════════════════════
+// TEAM GAME
+// ══════════════════════════════════════════
+function setupChat() {
+  if(chatCh){try{chatCh.unsubscribe();}catch{}}
+  chatCh=supa.channel('game_room')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'game_chat'},p=>appendMsg(p.new))
+    .subscribe();
+  loadChat();
+}
+
+async function loadChat() {
+  try {
+    const {data}=await supa.from('game_chat').select('*').order('id',{ascending:true}).limit(60);
+    const box=document.getElementById('chatBox');
+    if(!box) return;
+    box.innerHTML='';
+    (data||[]).forEach(m=>appendMsg(m,false));
+    box.scrollTop=box.scrollHeight;
+  } catch {}
+}
+
+function appendMsg(m,scroll=true) {
+  const box=document.getElementById('chatBox'); if(!box) return;
+  const d=document.createElement('div');
+  d.className=`cmsg ${m.uid===U?.id?'me':m.uid==='sys'?'sys':''}`;
+  d.innerHTML=`<span class="cw">${m.name}:</span><span> ${m.text}</span>`;
+  box.appendChild(d);
+  if(scroll) box.scrollTop=box.scrollHeight;
+}
+
+async function sendChat() {
+  const inp=document.getElementById('chatInp');
+  const txt=inp.value.trim();
+  if(!txt||!U) return;
+  await supa.from('game_chat').insert({name:U.name,text:txt,uid:U.id});
+  inp.value='';
+}
+
+document.getElementById('chatInp').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+
+// ══════════════════════════════════════════
+// GENERAL CHAT (sChat screen)
+// ══════════════════════════════════════════
+
+function setupChat2() {
+  if(chatCh2){try{chatCh2.unsubscribe();}catch{}}
+  chatCh2=supa.channel('general_chat_room')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'general_chat'},p=>appendMsg2(p.new))
+    .subscribe();
+}
+
+async function loadChat2() {
+  try {
+    const {data}=await supa.from('general_chat').select('*').order('id',{ascending:true}).limit(80);
+    const box=document.getElementById('chatBox2');
+    if(!box) return;
+    box.innerHTML='';
+    (data||[]).forEach(m=>appendMsg2(m,false));
+    box.scrollTop=box.scrollHeight;
+  } catch(e) {
+    const box=document.getElementById('chatBox2');
+    if(box) box.innerHTML='<div class="empty">Чат бор намешавад. Суpabase jadvalро created кун: general_chat (id, name, text, uid)</div>';
+  }
+}
+
+function appendMsg2(m,scroll=true) {
+  const box=document.getElementById('chatBox2'); if(!box) return;
+  const d=document.createElement('div');
+  d.className=`cmsg ${m.uid===U?.id?'me':m.uid==='sys'?'sys':''}`;
+  d.innerHTML=`<span class="cw">${m.name}:</span><span> ${m.text}</span>`;
+  box.appendChild(d);
+  if(scroll) box.scrollTop=box.scrollHeight;
+}
+
+async function sendChat2() {
+  if(!U||U.id==='demo'){toast('Барои чат логин лозим!','#e17055');return;}
+  const inp=document.getElementById('chatInp2');
+  const txt=inp.value.trim();
+  if(!txt) return;
+  try {
+    await supa.from('general_chat').insert({name:U.name,text:txt,uid:U.id});
+    inp.value='';
+  } catch(e) {
+    toast('❌ Паём нафиристод: '+e.message,'#e17055');
+  }
+}
+
+document.getElementById('chatInp2').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat2();});
+
+function setupGame() {
+  supa.channel('game_st_ch')
+    .on('postgres_changes',{event:'*',schema:'public',table:'game_state'},p=>{
+      const s=p.new;
+      const gq=document.getElementById('gameQ2'); if(gq&&s.question) gq.textContent=s.question;
+      const gs=document.getElementById('gameSt'); if(gs) gs.textContent=s.status==='running'?'▶️ Фаъол':'⏸ Интизор';
+    }).subscribe();
+  loadGameState();
+}
+
+async function loadGameState() {
+  try {
+    const {data}=await supa.from('game_state').select('*').eq('id','main').single();
+    if(data){
+      const gq=document.getElementById('gameQ2'); if(gq) gq.textContent=data.question||'Савол интизор...';
+      const gs=document.getElementById('gameSt'); if(gs) gs.textContent=data.status==='running'?'▶️ Фаъол':'⏸ Интизор';
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════
+function aTab(id,idx) {
+  document.querySelectorAll('.asec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.atab')[idx].classList.add('on');
+  ({aStat:loadAStat,aUsers:loadAUsers,aLessons:initAL,aQuiz:initAQ,aVids:loadAVids,aGame:()=>{},aCourse:loadAC})[id]?.();
+}
+
+async function loadAStat() {
+  try {
+    const {data:us}=await supa.from('users').select('id,xp');
+    const {data:rats}=await supa.from('ratings').select('*').order('xp',{ascending:false}).limit(20);
+    const uc=us?.length||0, rc=rats?.length||0;
+    const avg=rc?Math.round((rats||[]).reduce((s,r)=>s+(r.xp||0),0)/rc):0;
+    document.getElementById('stU').textContent=uc;
+    document.getElementById('stQ').textContent=rc;
+    document.getElementById('stA').textContent=avg;
+    const md=['🥇','🥈','🥉'];
+    document.getElementById('aRat').innerHTML=(rats||[]).map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;
+        background:rgba(255,255,255,0.02);border:1px solid var(--bo);border-radius:9px;margin-bottom:6px">
+        <div style="width:22px;text-align:center">${md[i]||(i+1)+'.'}</div>
+        <div style="flex:1;font-size:12px;font-weight:700">${r.name}</div>
+        <span class="sbadge ${r.xp>=500?'s100':r.xp>=200?'s80':r.xp>=100?'s60':'slow'}">${r.xp} XP</span>
+        <div style="font-size:9px;color:var(--mu)">${r.date||''}</div>
+      </div>`).join('')||'<div class="empty">Ҳанӯз нест</div>';
+  } catch(e){console.error(e);}
+}
+
+async function clearRatings() {
+  if(!confirm('Рейтингро тоза кунем?')) return;
+  try { await supa.from('ratings').delete().neq('user_id','__x__'); await loadAStat(); toast('✅ Тоза шуд!','#00b894'); } catch {}
+}
+
+async function loadAUsers() {
+  try {
+    const {data}=await supa.from('users').select('*').order('xp',{ascending:false});
+    const list=(data||[]).filter(u=>u.id!=='demo');
+    document.getElementById('aUList').innerHTML=list.length?list.map(u=>`
+      <div class="arow">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:29px;height:29px;border-radius:8px;background:linear-gradient(135deg,var(--pr),var(--bl));
+            display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">${(u.name||'?').charAt(0).toUpperCase()}</div>
+          <div><div style="font-size:12px;font-weight:700">${u.name}</div>
+          <div style="font-size:9px;color:var(--mu)">📅 ${u.joined||'—'} • ⚡ ${u.xp||0} XP</div></div>
+        </div>
+        <button class="ic-btn ic-r" onclick="delUser('${u.id}')">🗑️</button>
+      </div>`).join(''):'<div class="empty">Ҳанӯз шогирд нест</div>';
+  } catch(e){console.error(e);}
+}
+
+async function delUser(uid) {
+  if(!confirm('Корбарро нест кунем?')) return;
+  await supa.from('users').delete().eq('id',uid);
+  await supa.from('progress').delete().eq('user_id',uid);
+  await supa.from('ratings').delete().eq('user_id',uid);
+  loadAUsers(); toast('✅ Нест шуд!','#00b894');
+}
+
+async function initAL() {
+  const cs=await getCourses();
+  document.getElementById('lCS').innerHTML=cs.map(c=>`<option value="${c.id}">${c.icon} ${c.title}</option>`).join('');
+  renderAL();
+}
+async function renderAL() {
+  const cs=await getCourses(), cid=document.getElementById('lCS').value;
+  const c=cs.find(x=>x.id===cid);
+  document.getElementById('aLL').innerHTML=c?.lessons.length?c.lessons.map((l,i)=>`
+    <div class="arow">
+      <div><div style="font-size:12px;font-weight:700">${i+1}. ${l.title}</div>
+      <div style="font-size:9px;color:var(--mu)">${l.sub}</div></div>
+      <button class="ic-btn ic-r" onclick="delLesson('${cid}','${l.id}')">🗑️</button>
+    </div>`).join(''):'<div class="empty">Дарс нест</div>';
+}
+async function addLesson() {
+  const cid=document.getElementById('lCS').value;
+  const t=document.getElementById('nLT').value.trim();
+  const s=document.getElementById('nLS').value.trim();
+  const c=document.getElementById('nLC').value.trim();
+  const k=document.getElementById('nLK').value.trim();
+  const tp=document.getElementById('nLTip').value.trim();
+  if(!t||!s||!c){toast('Сарлавҳа, тавсиф ва матнро пур кун!','#e17055');return;}
+  const cs=await getCourses(), ci=cs.findIndex(x=>x.id===cid);
+  cs[ci].lessons.push({id:'l'+Date.now(),title:t,sub:s,content:c,code:k||'// ...',tip:tp||'Муҳим!'});
+  await saveCourses(cs);
+  ['nLT','nLS','nLC','nLK','nLTip'].forEach(id=>document.getElementById(id).value='');
+  renderAL(); renderHome(); toast('✅ Дарс илова шуд!','#00b894');
+}
+async function delLesson(cid,lid) {
+  if(!confirm('Дарсро нест кунем?')) return;
+  const cs=await getCourses(), ci=cs.findIndex(c=>c.id===cid);
+  cs[ci].lessons=cs[ci].lessons.filter(l=>l.id!==lid);
+  await saveCourses(cs); renderAL(); toast('✅ Нест шуд!','#00b894');
+}
+
+async function initAQ() {
+  const cs=await getCourses();
+  document.getElementById('qCS').innerHTML=cs.map(c=>`<option value="${c.id}">${c.icon} ${c.title}</option>`).join('');
+  renderAQ();
+}
+async function renderAQ() {
+  const cs=await getCourses(), cid=document.getElementById('qCS').value;
+  const c=cs.find(x=>x.id===cid), L=['А','Б','В','Г'];
+  document.getElementById('aQL').innerHTML=c?.quiz.length?c.quiz.map((q,i)=>`
+    <div class="qrow">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:12px;font-weight:700;flex:1">${i+1}. ${q.q}</div>
+        <button class="ic-btn ic-r" onclick="delQ('${cid}',${i})">🗑️</button>
+      </div>
+      ${q.opts.map((o,oi)=>`<div style="font-size:10px;color:${oi===q.c?'var(--gr)':'var(--mu)'};padding:1px 0">${L[oi]}) ${o}${oi===q.c?' ✅':''}</div>`).join('')}
+      <div style="font-size:9px;color:var(--mu);margin-top:4px">💡 ${q.ex}</div>
+    </div>`).join(''):'<div class="empty">Тест нест</div>';
+}
+async function addQ() {
+  const cid=document.getElementById('qCS').value;
+  const q=document.getElementById('nQQ').value.trim();
+  const a=document.getElementById('nQA').value.trim();
+  const b=document.getElementById('nQB').value.trim();
+  const c=document.getElementById('nQC').value.trim();
+  const d=document.getElementById('nQD').value.trim();
+  const ans=parseInt(document.getElementById('nQAns').value);
+  const ex=document.getElementById('nQE').value.trim();
+  if(!q||!a||!b||!c||!d){toast('Ҳамаро пур кун!','#e17055');return;}
+  const cs=await getCourses(), ci=cs.findIndex(x=>x.id===cid);
+  cs[ci].quiz.push({q,opts:[a,b,c,d],c:ans,ex:ex||''});
+  await saveCourses(cs);
+  ['nQQ','nQA','nQB','nQC','nQD','nQE'].forEach(id=>document.getElementById(id).value='');
+  renderAQ(); toast('✅ Тест илова шуд!','#00b894');
+}
+async function delQ(cid,idx) {
+  if(!confirm('Тестро нест кунем?')) return;
+  const cs=await getCourses(), ci=cs.findIndex(c=>c.id===cid);
+  cs[ci].quiz.splice(idx,1); await saveCourses(cs); renderAQ();
+}
+
+async function loadAVids() {
+  try {
+    const {data}=await supa.from('videos').select('*').order('added',{ascending:false});
+    document.getElementById('aVL').innerHTML=data?.length?data.map(v=>`
+      <div class="arow">
+        <div><div style="font-size:12px;font-weight:700">${v.title}</div>
+        <div style="font-size:9px;color:var(--mu)">ID: ${v.yt_id}</div></div>
+        <button class="ic-btn ic-r" onclick="delVid(${v.id})">🗑️</button>
+      </div>`).join(''):'<div class="empty">Видео нест</div>';
+  } catch {}
+}
+async function addVideo() {
+  const t=document.getElementById('nVT').value.trim();
+  const ytId=document.getElementById('nVID').value.trim();
+  const d=document.getElementById('nVD').value.trim();
+  if(!t||!ytId){toast('Сарлавҳа ва YouTube ID лозим!','#e17055');return;}
+  await supa.from('videos').insert({title:t,yt_id:ytId,description:d,added:Date.now()});
+  ['nVT','nVID','nVD'].forEach(id=>document.getElementById(id).value='');
+  loadAVids(); toast('✅ Видео илова шуд!','#00b894');
+}
+async function delVid(id) {
+  if(!confirm('Видеро нест кунем?')) return;
+  await supa.from('videos').delete().eq('id',id); loadAVids();
+}
+
+// GAME ADMIN
+async function startGame() {
+  const q=document.getElementById('gameQinp').value.trim();
+  if(!q){toast('Саволро нависед!','#e17055');return;}
+  await supa.from('game_state').upsert({id:'main',question:q,status:'running'});
+  await supa.from('game_chat').insert({name:'🎮 Система',text:'🚀 Бозӣ оғоз шуд! Вақт: 60 сония',uid:'sys'});
+  let sec=60;
+  if(timerInt) clearInterval(timerInt);
+  document.getElementById('timerC').classList.remove('danger');
+  timerInt=setInterval(async()=>{
+    sec--;
+    const tn=document.getElementById('timerN'); if(tn) tn.textContent=sec;
+    if(sec<=10) { const tc=document.getElementById('timerC'); if(tc) tc.classList.add('danger'); }
+    if(sec<=0){
+      clearInterval(timerInt);
+      const tc=document.getElementById('timerC'); if(tc) tc.classList.remove('danger');
+      const tn2=document.getElementById('timerN'); if(tn2) tn2.textContent=60;
+      await supa.from('game_state').upsert({id:'main',status:'stopped'});
+      await supa.from('game_chat').insert({name:'🔔 Система',text:'⏰ Вақт тамом шуд!',uid:'sys'});
+      sndBell();
+    }
+  },1000);
+  toast('▶️ Бозӣ оғоз шуд — 60 сония!','#6c5ce7');
+}
+async function stopGame() {
+  if(timerInt) clearInterval(timerInt);
+  const tc=document.getElementById('timerC'); if(tc) tc.classList.remove('danger');
+  const tn=document.getElementById('timerN'); if(tn) tn.textContent=60;
+  await supa.from('game_state').upsert({id:'main',status:'stopped'});
+  await supa.from('game_chat').insert({name:'🛑 Система',text:'Бозӣ қатъ шуд',uid:'sys'});
+}
+async function clearChat() {
+  if(!confirm('Чатро тоза кунем?')) return;
+  await supa.from('game_chat').delete().neq('id',0);
+  const cb=document.getElementById('chatBox'); if(cb) cb.innerHTML='';
+  toast('✅ Чат тоза шуд!','#00b894');
+}
+
+async function loadAC() {
+  const cs=await getCourses();
+  document.getElementById('aCL').innerHTML=cs.map(c=>`
+    <div class="arow">
+      <div><div style="font-size:13px;font-weight:700">${c.icon} ${c.title}</div>
+      <div style="font-size:9px;color:var(--mu)">${c.lessons.length} дарс • ${c.quiz.length} тест</div></div>
+      <button class="ic-btn ic-r" onclick="delCourse('${c.id}')">🗑️</button>
+    </div>`).join('');
+}
+async function addCourse() {
+  const t=document.getElementById('nCT').value.trim();
+  const d=document.getElementById('nCD').value.trim();
+  const ic=document.getElementById('nCI').value.trim()||'📘';
+  if(!t){toast('Номро нависед!','#e17055');return;}
+  const cs=await getCourses();
+  cs.push({id:'c'+Date.now(),title:t,desc:d||t,icon:ic,color:'cn',lessons:[],quiz:[]});
+  await saveCourses(cs);
+  ['nCT','nCD','nCI'].forEach(id=>document.getElementById(id).value='');
+  loadAC(); renderHome(); toast('✅ Курс илова шуд!','#00b894');
+}
+async function delCourse(cid) {
+  if(!confirm('Курсро нест кунем?')) return;
+  const cs=(await getCourses()).filter(c=>c.id!==cid);
+  await saveCourses(cs); loadAC(); renderHome();
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+async function go(id) {
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='sRating') await renderRating();
+  if(id==='sVideos') await renderVideos();
+  if(id==='sChat') loadChat2();
+}
+
+// ══════════════════════════════════════════
+// INIT — Supabase Auth State
+// ══════════════════════════════════════════
+startClock();
+
+supa.auth.onAuthStateChange(async(event, session)=>{
+  if(session?.user) {
+    try {
+      const su=session.user;
+      U = await ensureUser(su, su.user_metadata?.full_name || su.email?.split('@')[0]);
+      const isAdmin=su.email===ADMIN_EMAIL;
+      updateXPUI(U.xp||0);
+      await renderHome();
+      setupChat();
+      setupChat2();
+      setupGame();
+      showAdminBtn(isAdmin);
+      showLoader(false);
+      go('sHome');
+    } catch(e){
+      console.error(e);
+      showLoader(false);
+      go('sAuth');
+    }
+  } else if(event==='SIGNED_OUT'||event==='INITIAL_SESSION') {
+    showLoader(false);
+    if(!session) go('sAuth');
+  }
+});
+</script>
+</body>
+</html>
